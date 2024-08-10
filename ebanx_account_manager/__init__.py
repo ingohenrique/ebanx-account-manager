@@ -20,11 +20,8 @@ def create_app():
     
     @app.route('/reset', methods=['POST'])
     def reset():
-        accounts = {}
-        return {
-            'response':'The accounts have been reset',
-            'status':200
-        }
+        account_service.reset()
+        return jsonify(0), 200
 
     @app.route('/balance', methods=['GET'])
     def balance():
@@ -38,12 +35,24 @@ def create_app():
         data = request.get_json()
         if data['type'] == 'deposit':
             account = account_service.deposit(data['destination'], data['amount'])
-            return jsonify({'destination':{'id':f'{account.account_id}', 'amount':f'{account.balance}'}}), 201
+            return jsonify({'destination':{'id':account.account_id, 'amount':account.balance}}), 201
         if data['type'] == 'withdraw':
             account = account_service.withdraw(data['origin'], data['amount'])
             if account:
-                return jsonify({'origin':{'id':f'{account.account_id}', 'balance':f'{account.balance}'}}), 201
+                return jsonify({'origin':{'id':account.account_id, 'balance':account.balance}}), 201
             else:
                 return jsonify(0), 404
+        
+        if data['type'] == 'transfer':
+            origin, destination = account_service.transfer(data['origin'], data['amount'], data['destination'])
+            if origin and destination:
+                return jsonify({
+                    'origin': {'id': origin.account_id, 'balance': origin.balance},
+                    'destination': {'id': destination.account_id, 'balance': destination.balance}
+                }), 201
+            else:
+                return jsonify(0), 404
+
+
     return app
     

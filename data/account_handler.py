@@ -16,3 +16,10 @@ class AccountHandler:
             self.accounts[account_id].balance -= amount
             return self.accounts[account_id]
         return None
+
+    def transfer_between_accounts(self, origin_id, amount, destination_id):
+        origin = self.withdraw_from_account(origin_id, amount)
+        if origin:
+            destination = self.create_or_update_account(destination_id, amount)
+            return origin, destination
+        return None, None
