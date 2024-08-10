@@ -6,4 +6,8 @@ class AccountService:
     def deposit(self, destination, amount):
         account = self.account_handler.create_or_update_account(destination, amount)
         return account
+
+    def withdraw(self, origin, amount):
+        account = self.account_handler.withdraw_from_account(origin, amount)
+        return account
         

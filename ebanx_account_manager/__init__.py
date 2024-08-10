@@ -38,8 +38,12 @@ def create_app():
         data = request.get_json()
         if data['type'] == 'deposit':
             account = account_service.deposit(data['destination'], data['amount'])
-            return jsonify({'destination':{'id':f'{account.account_id}', 'amount':f'{account.balance}'}})
-       
-    
+            return jsonify({'destination':{'id':f'{account.account_id}', 'amount':f'{account.balance}'}}), 201
+        if data['type'] == 'withdraw':
+            account = account_service.withdraw(data['origin'], data['amount'])
+            if account:
+                return jsonify({'origin':{'id':f'{account.account_id}', 'balance':f'{account.balance}'}}), 201
+            else:
+                return jsonify(0), 404
     return app
     
