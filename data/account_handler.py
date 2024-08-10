@@ -3,6 +3,11 @@ class AccountHandler:
 
     def __init__(self):
         self.accounts = {}
+
+    def get_account(self, account_id):
+        if account_id in self.accounts:
+            return self.accounts[account_id]
+        return None
     
     def create_or_update_account(self, account_id, amount):
         if account_id in self.accounts:

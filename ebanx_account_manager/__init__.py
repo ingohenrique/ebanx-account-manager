@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 import logging
 from services.account_service import AccountService
 from data.account_handler import AccountHandler
@@ -21,21 +21,27 @@ def create_app():
     @app.route('/reset', methods=['POST'])
     def reset():
         account_service.reset()
-        return jsonify(0), 200
+        response = make_response('OK', 200)
+        response.mimetype = 'text/plain'
+        return response
 
     @app.route('/balance', methods=['GET'])
     def balance():
-        return {
-            'response':'',
-            'status':200
-        }
+        account_id = request.args.get('account_id')
 
+        account = account_service.get(account_id)
+
+        if account:
+            return jsonify(account.balance), 200
+        else:
+            return jsonify(0), 404
+    
     @app.route('/event', methods=['POST'])
     def event():
         data = request.get_json()
         if data['type'] == 'deposit':
             account = account_service.deposit(data['destination'], data['amount'])
-            return jsonify({'destination':{'id':account.account_id, 'amount':account.balance}}), 201
+            return jsonify({'destination':{'id':account.account_id, 'balance':account.balance}}), 201
         if data['type'] == 'withdraw':
             account = account_service.withdraw(data['origin'], data['amount'])
             if account:
